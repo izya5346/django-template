@@ -1,0 +1,57 @@
+services:
+  web-app:
+    build: 
+      context: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./src:/service
+    environment:
+      - DB_HOST=database
+      - DB_NAME=yapo
+      - DB_USER=postgres
+      - DB_PASSWORD=4e4nyastrang3
+    command: python manage.py runserver 0.0.0.0:8000
+    depends_on:
+      - database
+  database:
+    image: postgres:alpine3.18
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_DB=yapo
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=4e4nyastrang3
+  redis:
+    image: redis:alpine3.18
+
+  worker:
+    build: 
+      context: .
+    entrypoint: celery
+    volumes:
+      - ./src:/service
+    command: -A config worker --pool=threads --concurrency=16 --loglevel=info
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    environment:
+      - DB_HOST=database
+      - DB_NAME=yapo
+      - DB_USER=postgres
+      - DB_PASSWORD=4e4nyastrang3
+    depends_on:
+      - web-app
+      - database
+      - redis
+  flower:
+    build: 
+      context: .
+    entrypoint: celery
+    command: -A config flower
+    depends_on:
+      - web-app
+      - database
+      - redis
+    ports:
+      - "5555:5555"
