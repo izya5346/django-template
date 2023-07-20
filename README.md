@@ -10,6 +10,7 @@
 python -m venv env
 pip install -r requirements.txt
 docker-compose up --build
+```
 ## Для создания приложения:
 ```bash
 mkdir apps/newapp
