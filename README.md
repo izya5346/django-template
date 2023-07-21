@@ -29,7 +29,7 @@ class NewappConfig(AppConfig):
 ```python
 INSTALLED_APPS = [
     ...,
-    'apps.newapp.NewappConfig',
+    'apps.newapp.apps.NewappConfig',
 ]
 ```
 ## Вспомогательные команды
